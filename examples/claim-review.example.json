@@ -1,0 +1,19 @@
+{
+  "claimId": "claim-0f1e2d3c4b5a",
+  "claimText": "The protocol mesh provides audited runtime hashing and encrypted packaging workflows.",
+  "category": "technical",
+  "riskLevel": "medium",
+  "publicAllowed": true,
+  "requiredDisclaimer": "Technical descriptions must remain implementation-specific and must not imply efficacy without validated evidence.",
+  "requiredEvidenceChecklist": [
+    "architecture spec",
+    "test logs",
+    "security review",
+    "benchmark evidence"
+  ],
+  "reviewStatus": "PENDING_REVIEW",
+  "recommendedStoragePath": "claims/public/claim-0f1e2d3c4b5a.json",
+  "notes": [
+    "Claim may be summarized publicly after review."
+  ]
+}

@@ -1,0 +1,1 @@
+export const AIT_ADMIN_SESSION_COOKIE = 'ait_admin_session';

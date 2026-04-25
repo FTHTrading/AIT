@@ -1,0 +1,12 @@
+{
+  "documentId": "doc-restricted-review-demo",
+  "visibility": "restricted",
+  "recommendedStoragePath": "storage/restricted/encrypted/doc-restricted-review-demo.json",
+  "encryptedPayloadRef": "vault://ait/restricted/doc-restricted-review-demo",
+  "proofManifest": {
+    "algorithm": "sha256",
+    "hash": "ad9f20d91157c321a4b6c46a73741d519986505cff2f12733842e2a58c8f6d2a",
+    "publicCid": null,
+    "encryptedCid": null
+  }
+}

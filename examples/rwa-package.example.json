@@ -1,0 +1,20 @@
+{
+  "packageId": "rwa-112233445566",
+  "assetType": "PROTOCOL_USAGE_RIGHT",
+  "title": "AIT Protocol Usage Right",
+  "moduleId": "rwa.asset-registry.v1",
+  "legalStatus": "LEGAL_REVIEW_REQUIRED",
+  "liveTokenSaleEnabled": false,
+  "rightsSummary": [
+    "runtime allowance",
+    "module usage rights",
+    "metering schedule"
+  ],
+  "requiredDisclosures": [
+    "LEGAL_REVIEW_REQUIRED",
+    "No live token sale logic is enabled.",
+    "This package is metadata-only and not a securities offer."
+  ],
+  "reviewStatus": "NEEDS_LEGAL_REVIEW",
+  "metadata": {}
+}

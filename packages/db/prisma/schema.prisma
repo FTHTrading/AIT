@@ -1,0 +1,730 @@
+// ─── BIOFIELD OS — Prisma Schema ───
+// All 22 domain entities mapped to PostgreSQL.
+
+generator client {
+  provider = "prisma-client-js"
+  // Outputs to the workspace-root node_modules so all packages share the same
+  // generated client.  Run `npm run db:generate` from the repo root after
+  // any schema change.
+  output   = "../../../node_modules/@prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ═══════════════════════════════════════════
+// Enums
+// ═══════════════════════════════════════════
+
+enum SimulationMode {
+  realtime
+  accelerated
+  step
+  replay
+}
+
+enum SessionStatus {
+  idle
+  running
+  paused
+  completed
+  aborted
+}
+
+enum OrganSystem {
+  lung
+  cardiac
+  renal
+  metabolic
+  inflammatory
+}
+
+enum GasType {
+  O2
+  CO2
+  N2O
+  NO
+  He
+  air
+  custom
+}
+
+enum SignalType {
+  ecg
+  eeg
+  emg
+  ppg
+  spo2
+  capnography
+  ventilator_waveform
+  custom
+}
+
+enum AlarmSeverity {
+  info
+  low
+  medium
+  high
+  critical
+}
+
+enum LockLevel {
+  advisory
+  enforced
+  emergency_stop
+}
+
+enum ApprovalStatus {
+  pending
+  approved
+  rejected
+  expired
+}
+
+enum RecommendationUrgency {
+  routine
+  soon
+  urgent
+  immediate
+}
+
+enum ActionOutcome {
+  success
+  partial
+  failed
+  overridden
+}
+
+enum ActorType {
+  operator
+  ai
+  system
+  safety
+}
+
+enum CommandSource {
+  operator
+  ai
+  protocol
+  safety
+}
+
+// ═══════════════════════════════════════════
+// 1. PatientSimulationProfile
+// ═══════════════════════════════════════════
+
+model PatientSimulationProfile {
+  id                 String        @id @default(cuid())
+  label              String
+  age                Int
+  weightKg           Float
+  heightCm           Float
+  sex                String        // male | female | other
+  baselineConditions String[]
+  activeOrganSystems OrganSystem[]
+  metadata           Json          @default("{}")
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+
+  organStates       OrganState[]
+  gasCircuitStates  GasCircuitState[]
+  gasCommands       GasCommand[]
+  safetyLocks       SafetyLock[]
+  alarmEvents       AlarmEvent[]
+  recommendations   Recommendation[]
+  operatorActions   OperatorAction[]
+  sessionPlaybacks  SessionPlayback[]
+
+  @@map("patient_simulation_profiles")
+}
+
+// ═══════════════════════════════════════════
+// 2. OrganState (all 5 organ types in one table)
+// ═══════════════════════════════════════════
+
+model OrganState {
+  id             String      @id @default(cuid())
+  profileId      String
+  organ          OrganSystem
+  timestampMs    BigInt
+  parameters     Json        // organ-specific parameters
+  derivedMetrics Json        @default("{}")
+  trending       String      // improving | stable | deteriorating | critical
+  notes          String      @default("")
+
+  profile PatientSimulationProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@index([profileId, organ, timestampMs])
+  @@map("organ_states")
+}
+
+// ═══════════════════════════════════════════
+// 3. GasCircuitState
+// ═══════════════════════════════════════════
+
+model GasCircuitState {
+  id                  String  @id @default(cuid())
+  profileId           String
+  timestampMs         BigInt
+  channels            Json    // GasChannelReading[]
+  totalFlowLpm        Float
+  mixturePct          Json    // Record<GasType, number>
+  deliveryPressureKpa Float
+  humidityPct         Float
+  temperatureC        Float
+
+  profile PatientSimulationProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@index([profileId, timestampMs])
+  @@map("gas_circuit_states")
+}
+
+// ═══════════════════════════════════════════
+// 4. GasCommand
+// ═══════════════════════════════════════════
+
+model GasCommand {
+  id                     String        @id @default(cuid())
+  profileId              String
+  issuedAt               DateTime      @default(now())
+  gasType                GasType
+  targetFlowLpm          Float
+  targetConcentrationPct Float
+  rampDurationMs         Int
+  source                 CommandSource
+  approved               Boolean       @default(false)
+  executedAt             DateTime?
+  safetyLockId           String?
+
+  profile PatientSimulationProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@index([profileId, issuedAt])
+  @@map("gas_commands")
+}
+
+// ═══════════════════════════════════════════
+// 5. SignalProgram
+// ═══════════════════════════════════════════
+
+model SignalProgram {
+  id          String          @id @default(cuid())
+  name        String
+  description String          @default("")
+  durationMs  BigInt
+  looping     Boolean         @default(false)
+  createdBy   String
+  version     Int             @default(1)
+  createdAt   DateTime        @default(now())
+
+  channels SignalChannel[]
+
+  @@map("signal_programs")
+}
+
+// ═══════════════════════════════════════════
+// 6. SignalChannel
+// ═══════════════════════════════════════════
+
+model SignalChannel {
+  id                   String     @id @default(cuid())
+  programId            String
+  signalType           SignalType
+  label                String
+  sampleRateHz         Int
+  amplitudeMin         Float
+  amplitudeMax         Float
+  baselineValue        Float
+  noiseLevel           Float
+  waveformGeneratorId  String
+
+  program     SignalProgram       @relation(fields: [programId], references: [id], onDelete: Cascade)
+  constraints SignalConstraint[]
+
+  @@map("signal_channels")
+}
+
+// ═══════════════════════════════════════════
+// 7. SignalConstraint
+// ═══════════════════════════════════════════
+
+model SignalConstraint {
+  id               String  @id @default(cuid())
+  channelId        String
+  parameterName    String
+  minValue         Float
+  maxValue         Float
+  alarmOnViolation Boolean @default(false)
+  lockOnViolation  Boolean @default(false)
+  description      String  @default("")
+
+  channel SignalChannel @relation(fields: [channelId], references: [id], onDelete: Cascade)
+
+  @@map("signal_constraints")
+}
+
+// ═══════════════════════════════════════════
+// 8. SafetyLock
+// ═══════════════════════════════════════════
+
+model SafetyLock {
+  id                       String        @id @default(cuid())
+  profileId                String
+  level                    LockLevel
+  reason                   String
+  triggeredBy              String
+  affectedSystems          OrganSystem[]
+  affectedGasTypes         GasType[]
+  overrideRequiresApproval Boolean       @default(true)
+  activatedAt              DateTime      @default(now())
+  deactivatedAt            DateTime?
+  deactivatedBy            String?
+
+  profile PatientSimulationProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@index([profileId, activatedAt])
+  @@map("safety_locks")
+}
+
+// ═══════════════════════════════════════════
+// 9. AlarmEvent
+// ═══════════════════════════════════════════
+
+model AlarmEvent {
+  id              String        @id @default(cuid())
+  profileId       String
+  severity        AlarmSeverity
+  source          String
+  organ           OrganSystem?
+  parameterName   String
+  currentValue    Float
+  thresholdValue  Float
+  message         String
+  acknowledged    Boolean       @default(false)
+  acknowledgedBy  String?
+  acknowledgedAt  DateTime?
+  resolvedAt      DateTime?
+  firedAt         DateTime      @default(now())
+
+  profile PatientSimulationProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@index([profileId, firedAt])
+  @@map("alarm_events")
+}
+
+// ═══════════════════════════════════════════
+// 10. Recommendation
+// ═══════════════════════════════════════════
+
+model Recommendation {
+  id               String               @id @default(cuid())
+  profileId        String
+  urgency          RecommendationUrgency
+  title            String
+  rationale        String
+  suggestedActions Json                  // SuggestedAction[]
+  modelVersionId   String
+  confidence       Float
+  inputSnapshot    Json                  @default("{}")
+  createdAt        DateTime              @default(now())
+  acceptedAt       DateTime?
+  rejectedAt       DateTime?
+  rejectedReason   String?
+
+  profile PatientSimulationProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@index([profileId, createdAt])
+  @@map("recommendations")
+}
+
+// ═══════════════════════════════════════════
+// 11. ModelVersion
+// ═══════════════════════════════════════════
+
+model ModelVersion {
+  id           String   @id @default(cuid())
+  name         String
+  version      String
+  modelPath    String
+  inputSchema  Json     @default("{}")
+  outputSchema Json     @default("{}")
+  trainedAt    DateTime
+  accuracy     Float
+  active       Boolean  @default(false)
+
+  @@map("model_versions")
+}
+
+// ═══════════════════════════════════════════
+// 12. ProtocolTemplate
+// ═══════════════════════════════════════════
+
+model ProtocolTemplate {
+  id                String        @id @default(cuid())
+  name              String
+  description       String        @default("")
+  version           Int           @default(1)
+  steps             Json          // ProtocolStep[]
+  applicableOrgans  OrganSystem[]
+  safetyConstraints Json          @default("[]")
+  gasPresets        Json          @default("[]")
+  createdBy         String
+  approvedBy        String?
+  createdAt         DateTime      @default(now())
+
+  @@map("protocol_templates")
+}
+
+// ═══════════════════════════════════════════
+// 13. OperatorAction
+// ═══════════════════════════════════════════
+
+model OperatorAction {
+  id             String        @id @default(cuid())
+  profileId      String
+  operatorId     String
+  actionType     String
+  description    String
+  targetEntity   String
+  targetEntityId String
+  payload        Json          @default("{}")
+  outcome        ActionOutcome
+  resultNotes    String        @default("")
+  performedAt    DateTime      @default(now())
+
+  profile PatientSimulationProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@index([profileId, performedAt])
+  @@map("operator_actions")
+}
+
+// ═══════════════════════════════════════════
+// 14. AuditEvent
+// ═══════════════════════════════════════════
+
+model AuditEvent {
+  id          String    @id @default(cuid())
+  sessionId   String
+  profileId   String?
+  eventType   String
+  actor       String
+  actorType   ActorType
+  description String
+  entityType  String
+  entityId    String
+  beforeState Json?
+  afterState  Json?
+  contentHash String
+  timestamp   DateTime  @default(now())
+
+  session SimulationSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId, timestamp])
+  @@index([eventType])
+  @@map("audit_events")
+}
+
+// ═══════════════════════════════════════════
+// 15. SessionPlayback
+// ═══════════════════════════════════════════
+
+model SessionPlayback {
+  id                   String         @id @default(cuid())
+  profileId            String
+  mode                 SimulationMode
+  status               SessionStatus
+  startedAt            DateTime       @default(now())
+  endedAt              DateTime?
+  speedMultiplier      Float          @default(1.0)
+  totalEventsRecorded  Int            @default(0)
+  snapshotIntervalMs   Int            @default(1000)
+  operatorIds          String[]
+  protocolId           String?
+  notes                String         @default("")
+
+  profile PatientSimulationProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@map("session_playbacks")
+}
+
+// ═══════════════════════════════════════════
+// 16. ApprovalRequest
+// ═══════════════════════════════════════════
+
+model ApprovalRequest {
+  id               String         @id @default(cuid())
+  entityType       String
+  entityId         String
+  requestedBy      String
+  requiredApprover String
+  status           ApprovalStatus @default(pending)
+  requestedAt      DateTime       @default(now())
+  resolvedAt       DateTime?
+  resolvedBy       String?
+  rejectionReason  String?
+
+  @@index([status])
+  @@map("approval_requests")
+}
+
+// ═══════════════════════════════════════════
+// 17. EmergencyStopEvent
+// ═══════════════════════════════════════════
+
+model EmergencyStopEvent {
+  id          String   @id @default(cuid())
+  sessionId   String
+  reason      String
+  triggeredBy String
+  lockId      String?
+  stoppedAt   DateTime @default(now())
+  resolvedAt  DateTime?
+  resolvedBy  String?
+
+  session SimulationSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@map("emergency_stop_events")
+}
+
+// ═══════════════════════════════════════════
+// 18. SimulationSession
+// ═══════════════════════════════════════════
+
+model SimulationSession {
+  id              String         @id @default(cuid())
+  profileId       String
+  mode            SimulationMode
+  status          SessionStatus  @default(idle)
+  startedAt       DateTime       @default(now())
+  endedAt         DateTime?
+  tickCount       Int            @default(0)
+  tickIntervalMs  Int            @default(10)
+  speedMultiplier Float          @default(1.0)
+  operatorIds     String[]
+  protocolId      String?
+  notes           String         @default("")
+
+  auditEvents        AuditEvent[]
+  emergencyStopEvents EmergencyStopEvent[]
+
+  @@index([status])
+  @@map("simulation_sessions")
+}
+
+enum AitReviewStatus {
+  PENDING_REVIEW
+  APPROVED
+  REJECTED
+  NEEDS_LEGAL_REVIEW
+  NEEDS_MEDICAL_REVIEW
+  NEEDS_REGULATORY_REVIEW
+  READY_FOR_ANCHOR
+  ANCHORED
+  ARCHIVED
+}
+
+enum AitVisibilityLevel {
+  public
+  restricted
+  private
+}
+
+enum AitAdminRole {
+  ADMIN
+  LEGAL_REVIEWER
+  MEDICAL_REVIEWER
+  REGULATORY_REVIEWER
+  TECHNICAL_REVIEWER
+  VIEW_ONLY
+}
+
+model AitDocumentProof {
+  id                  String             @id @default(cuid())
+  documentId          String             @unique
+  reviewStatus        AitReviewStatus
+  visibility          AitVisibilityLevel?
+  proofHash           String?
+  recommendedAction   String
+  manifest            Json
+  encryptedPayloadRef String?
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+
+  @@map("ait_document_proofs")
+}
+
+model AitMerkleBatch {
+  id                String          @id @default(cuid())
+  batchId           String          @unique
+  reviewStatus      AitReviewStatus
+  proofHash         String?
+  recommendedAction String
+  merkleProof       Json
+  documentIds       String[]
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  @@map("ait_merkle_batches")
+}
+
+model AitAnchorPayload {
+  id                String          @id @default(cuid())
+  anchorId          String          @unique
+  chain             String
+  reviewStatus      AitReviewStatus
+  proofHash         String?
+  recommendedAction String
+  anchorPayload     Json
+  batchId           String?
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  @@map("ait_anchor_payloads")
+}
+
+model AitIpfsPayload {
+  id                  String             @id @default(cuid())
+  ipfsId              String             @unique
+  documentId          String
+  reviewStatus        AitReviewStatus
+  visibility          AitVisibilityLevel?
+  proofHash           String?
+  recommendedAction   String
+  cid                 String?
+  placeholder         Boolean            @default(false)
+  encryptedPayloadRef String?
+  payload             Json?
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+
+  @@index([documentId])
+  @@map("ait_ipfs_payloads")
+}
+
+model AitClaimReview {
+  id                String             @id @default(cuid())
+  claimId           String             @unique
+  reviewStatus      AitReviewStatus
+  visibility        AitVisibilityLevel?
+  riskLevel         String?
+  proofHash         String?
+  recommendedAction String
+  review            Json
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+
+  @@map("ait_claim_reviews")
+}
+
+model AitEvidenceRequest {
+  id                String             @id @default(cuid())
+  evidenceRequestId String             @unique
+  claimId           String
+  reviewStatus      AitReviewStatus
+  visibility        AitVisibilityLevel?
+  proofHash         String?
+  recommendedAction String
+  evidenceChecklist String[]
+  disclaimer        String
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+
+  @@index([claimId])
+  @@map("ait_evidence_requests")
+}
+
+model AitRwaPackage {
+  id                String             @id @default(cuid())
+  packageId         String             @unique
+  reviewStatus      AitReviewStatus
+  visibility        AitVisibilityLevel?
+  proofHash         String?
+  recommendedAction String
+  rwaPackage        Json
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+
+  @@map("ait_rwa_packages")
+}
+
+model AitX402Challenge {
+  id                String          @id @default(cuid())
+  challengeId       String          @unique
+  reviewStatus      AitReviewStatus
+  proofHash         String?
+  recommendedAction String
+  challenge         Json
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  @@map("ait_x402_challenges")
+}
+
+model AitX402Receipt {
+  id                String          @id @default(cuid())
+  receiptId         String          @unique
+  reviewStatus      AitReviewStatus
+  proofHash         String?
+  recommendedAction String
+  receipt           Json
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  @@map("ait_x402_receipts")
+}
+
+model AitAdminReview {
+  id                String             @id @default(cuid())
+  reviewId          String             @unique
+  entityType        String
+  entityId          String
+  reviewStatus      AitReviewStatus
+  visibility        AitVisibilityLevel?
+  riskLevel         String?
+  proofHash         String?
+  recommendedAction String
+  actionLabel       String
+  notes             String[]
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+
+  @@index([entityType, entityId])
+  @@map("ait_admin_reviews")
+}
+
+model AitAuditEvent {
+  id             String       @id @default(cuid())
+  auditEventId   String       @unique
+  actorId        String
+  actorRole      AitAdminRole
+  entityType     String
+  entityId       String
+  action         String
+  previousStatus AitReviewStatus?
+  nextStatus     AitReviewStatus?
+  notes          String[]
+  metadata       Json         @default("{}")
+  createdAt      DateTime     @default(now())
+
+  @@index([entityType, entityId])
+  @@map("ait_audit_events")
+}
+
+model AitRouteMeterRecord {
+  id             String   @id @default(cuid())
+  meterId        String   @unique
+  challengeId    String?
+  route          String
+  amount         Float
+  asset          String
+  units          Int
+  unitType       String
+  estimatedTotal Float
+  status         String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([route, createdAt])
+  @@map("ait_route_meter_records")
+}

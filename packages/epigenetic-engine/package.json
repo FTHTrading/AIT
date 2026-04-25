@@ -1,0 +1,19 @@
+{
+  "name": "@biofield/epigenetic-engine",
+  "version": "1.0.0",
+  "description": "Epigenetic healing models: Horvath clock, sirtuin/NAD+ axis, mitochondrial membrane potential, AMPK, cellular reprogramming scoring — BIOFIELD OS longevity science layer",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@biofield/dna-repair-engine": "*"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.0",
+    "vitest": "^3.0.0"
+  }
+}

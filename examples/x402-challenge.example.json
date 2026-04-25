@@ -1,0 +1,9 @@
+{
+  "challengeId": "x402-123e4567-e89b-12d3-a456-426614174000",
+  "route": "/api/ait/rwa/packages",
+  "amount": 0.25,
+  "asset": "ATP",
+  "nonce": "fedcba98765432100123456789abcdef",
+  "expiresAt": "2026-04-25T00:05:00.000Z",
+  "status": "PENDING"
+}

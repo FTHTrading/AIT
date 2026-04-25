@@ -1,0 +1,17 @@
+{
+  "name": "@biofield/physiological-models",
+  "version": "1.0.0",
+  "description": "Real physiological formulas: Krogh cylinder, Henderson-Hasselbalch, Bohr effect, HBOT, Fick, Hill equation — clinical gas therapy science layer for BIOFIELD OS",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "typescript": "^5.7.0",
+    "vitest": "^3.0.0"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "documentId": "doc-ait-dossier-summary-a1b2c3d4e5f6",
+  "sha256": "a1b2c3d4e5f60718293a4b5c6d7e8f90123456789abcdef0011223344556677",
+  "generatedAt": "2026-04-25T00:00:00.000Z",
+  "visibility": "restricted",
+  "recommendedStoragePath": "storage/restricted/encrypted/doc-ait-dossier-summary-a1b2c3d4e5f6.json",
+  "proofManifestVersion": "1.0",
+  "sourceType": "text",
+  "publicAllowed": false,
+  "encryptedRequired": true,
+  "metadata": {
+    "title": "AIT Dossier Summary",
+    "fileName": "ait-dossier-summary.txt",
+    "mimeType": "text/plain",
+    "sizeBytes": 84
+  },
+  "proofManifest": {
+    "algorithm": "sha256",
+    "hash": "a1b2c3d4e5f60718293a4b5c6d7e8f90123456789abcdef0011223344556677",
+    "visibility": "restricted",
+    "recommendedStoragePath": "storage/restricted/encrypted/doc-ait-dossier-summary-a1b2c3d4e5f6.json",
+    "publicCid": null,
+    "encryptedCid": null,
+    "notes": [
+      "Do not expose raw KYC, private medical, private formula, private contract, or confidential investor documents.",
+      "Private or restricted content must remain encrypted before any off-vault storage."
+    ]
+  }
+}

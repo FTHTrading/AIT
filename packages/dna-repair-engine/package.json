@@ -1,0 +1,19 @@
+{
+  "name": "@biofield/dna-repair-engine",
+  "version": "1.0.0",
+  "description": "DNA repair pathway scoring: BER, NER, HR, NHEJ, telomere maintenance, ROS reduction — molecular biology science layer for BIOFIELD OS",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@biofield/physiological-models": "*"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.0",
+    "vitest": "^3.0.0"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "documentId": "doc-private-diligence-demo",
+  "visibility": "private",
+  "recommendedStoragePath": "storage/private/vault/doc-private-diligence-demo.json",
+  "encryptedPayloadRef": "vault://ait/private/doc-private-diligence-demo",
+  "proofManifest": {
+    "algorithm": "sha256",
+    "hash": "b6d0f4d9a9f914f3e4719ac10cdd5f991ec2e4cdafb4c79f4f7830b325a7afc2",
+    "publicCid": null,
+    "encryptedCid": null
+  }
+}

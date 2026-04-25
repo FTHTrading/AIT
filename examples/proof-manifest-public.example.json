@@ -1,0 +1,11 @@
+{
+  "documentId": "doc-public-summary-demo",
+  "visibility": "public",
+  "recommendedStoragePath": "storage/public/ipfs/doc-public-summary-demo.json",
+  "proofManifest": {
+    "algorithm": "sha256",
+    "hash": "f707f6f78b7e5e3ac53c9bf4b11913ec57893365f2f26f0a33f33b19fca67f6e",
+    "publicCid": "bafypublicproofdemo",
+    "encryptedCid": null
+  }
+}

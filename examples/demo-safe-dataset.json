@@ -1,0 +1,100 @@
+{
+  "generatedAt": "2026-04-25T00:00:00.000Z",
+  "classification": "demo-safe-synthetic",
+  "documentProof": {
+    "documentId": "doc-ait-overview-demo-001",
+    "sha256": "f707f6f78b7e5e3ac53c9bf4b11913ec57893365f2f26f0a33f33b19fca67f6e",
+    "visibility": "restricted",
+    "recommendedStoragePath": "storage/restricted/encrypted/doc-ait-overview-demo-001.json"
+  },
+  "merkleBatch": {
+    "batchId": "batch-demo-001",
+    "root": "fa0dafbf43f1f551e536353e9d1a942a8e86e41a0b58dfeaf264ef217f6b862a",
+    "leafCount": 2,
+    "status": "READY_FOR_ANCHOR"
+  },
+  "ipfsPayload": {
+    "ipfsId": "ipfs-demo-001",
+    "visibility": "restricted",
+    "cid": "bafydemosafecid0001",
+    "placeholder": true,
+    "encryptedPayloadRef": "vault://ait/demo/doc-ait-overview-demo-001",
+    "reviewStatus": "PENDING_REVIEW"
+  },
+  "anchorPayload": {
+    "anchorId": "anchor-polygon-demo-001",
+    "chain": "polygon",
+    "network": "polygon-amoy",
+    "status": "BROADCAST_DISABLED",
+    "unsigned": true,
+    "broadcastEnabled": false,
+    "merkleRoot": "fa0dafbf43f1f551e536353e9d1a942a8e86e41a0b58dfeaf264ef217f6b862a"
+  },
+  "claimReview": {
+    "claimId": "claim-demo-001",
+    "claimText": "The platform provides audit-ready hashing and review-gated infrastructure workflows.",
+    "category": "technical",
+    "riskLevel": "medium",
+    "reviewStatus": "PENDING_REVIEW",
+    "publicAllowed": true
+  },
+  "evidenceRequest": {
+    "evidenceRequestId": "evidence-demo-001",
+    "claimId": "claim-demo-001",
+    "reviewStatus": "PENDING_REVIEW",
+    "evidenceChecklist": [
+      "architecture spec",
+      "test logs",
+      "security review",
+      "benchmark evidence"
+    ],
+    "disclaimer": "Technical descriptions must remain implementation-specific and must not imply efficacy without validated evidence."
+  },
+  "rwaPackage": {
+    "packageId": "rwa-demo-001",
+    "assetType": "PROTOCOL_USAGE_RIGHT",
+    "title": "AIT Protocol Usage Right Demo",
+    "legalStatus": "LEGAL_REVIEW_REQUIRED",
+    "liveTokenSaleEnabled": false,
+    "reviewStatus": "NEEDS_LEGAL_REVIEW"
+  },
+  "x402Challenge": {
+    "challengeId": "x402-demo-001",
+    "route": "/api/ait/rwa/packages",
+    "amount": 0.25,
+    "asset": "ATP",
+    "nonce": "a4c3de1f9b8a7c6d5e4f3a2b1c0d9988",
+    "expiresAt": "2026-04-25T01:00:00.000Z",
+    "status": "PENDING"
+  },
+  "x402Receipt": {
+    "receiptId": "receipt-demo-001",
+    "challengeId": "x402-demo-001",
+    "route": "/api/ait/rwa/packages",
+    "amount": 0.25,
+    "asset": "ATP",
+    "status": "ISSUED",
+    "meter": {
+      "units": 1,
+      "unitType": "request"
+    }
+  },
+  "adminReview": {
+    "reviewId": "review-demo-001",
+    "entityType": "rwaPackage",
+    "entityId": "rwa-demo-001",
+    "reviewStatus": "NEEDS_LEGAL_REVIEW",
+    "actionLabel": "request legal review",
+    "recommendedAction": "Route this package to legal review before investor-facing usage.",
+    "notes": [
+      "Demo-safe sample only",
+      "No live offering details"
+    ]
+  },
+  "boundaries": {
+    "containsRealKyc": false,
+    "containsFormulaOrDosing": false,
+    "containsPatientData": false,
+    "containsLiveFinancialOffer": false
+  }
+}

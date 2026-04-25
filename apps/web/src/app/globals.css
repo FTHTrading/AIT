@@ -1,0 +1,35 @@
+@import "tailwindcss";
+
+:root {
+  --bg-primary: #030712;
+  --bg-secondary: #071228;
+  --bg-accent: #0c1c35;
+  --border: #1f2937;
+  --accent: #22d3ee;
+  --text-primary: #e5f9ff;
+}
+
+body {
+  color: var(--text-primary);
+  background:
+    radial-gradient(circle at 15% 15%, rgba(34, 211, 238, 0.12), transparent 42%),
+    radial-gradient(circle at 85% 5%, rgba(96, 165, 250, 0.14), transparent 40%),
+    linear-gradient(145deg, var(--bg-primary) 0%, var(--bg-secondary) 45%, var(--bg-accent) 100%);
+  min-height: 100vh;
+}
+
+.panel {
+  @apply border border-cyan-950/60 rounded-xl bg-slate-950/60 p-4 shadow-[0_10px_30px_rgba(3,10,24,0.35)] backdrop-blur-sm;
+}
+
+.panel-title {
+  @apply text-xs uppercase tracking-[0.2em] text-cyan-300/70 mb-3 font-semibold;
+}
+
+.stat-value {
+  @apply text-2xl font-bold tabular-nums;
+}
+
+.stat-label {
+  @apply text-xs text-gray-500 mt-1;
+}

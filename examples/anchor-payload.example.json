@@ -1,0 +1,13 @@
+{
+  "chain": "polygon",
+  "network": "polygon-amoy",
+  "moduleId": "ait.biofield.v1",
+  "eventType": "DOCUMENT_SET_ANCHOR",
+  "merkleRoot": "0abc1234def567890abc1234def567890abc1234def567890abc1234def56789",
+  "memo": "ait.biofield.v1:DOCUMENT_SET_ANCHOR:0abc1234def56789",
+  "dataField": "{\"eventType\":\"DOCUMENT_SET_ANCHOR\",\"generatedAt\":\"2026-04-25T00:00:00.000Z\",\"merkleRoot\":\"0abc1234def567890abc1234def567890abc1234def567890abc1234def56789\",\"moduleId\":\"ait.biofield.v1\"}",
+  "status": "READY_FOR_SIGNING",
+  "unsigned": true,
+  "broadcastEnabled": false,
+  "generatedAt": "2026-04-25T00:00:00.000Z"
+}

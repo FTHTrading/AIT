@@ -1,0 +1,36 @@
+{
+  "name": "biofield-os",
+  "version": "0.1.0",
+  "private": true,
+  "description": "BIOFIELD OS — AI-Orchestrated Gas, Signal, and Organ Support Research Platform",
+  "workspaces": [
+    "packages/*",
+    "services/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "test": "turbo run test",
+    "lint": "turbo run lint",
+    "db:generate": "npm -w packages/db run generate",
+    "db:migrate": "npm -w packages/db run migrate:dev",
+    "db:seed": "npm -w packages/db run seed",
+    "sim": "turbo run dev --filter=@biofield/sim-lab"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.2.2",
+    "@types/node": "^22.0.0",
+    "autoprefixer": "^10.4.27",
+    "eslint": "^9.0.0",
+    "prettier": "^3.5.0",
+    "tailwindcss": "^4.2.2",
+    "turbo": "^2.5.0",
+    "typescript": "^5.7.0",
+    "vitest": "^3.0.0"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "packageManager": "npm@11.6.2"
+}
