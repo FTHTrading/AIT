@@ -13,6 +13,7 @@
     "dev": "turbo run dev",
     "test": "turbo run test",
     "lint": "turbo run lint",
+    "check:public-routes": "node scripts/check-public-routes.mjs",
     "db:generate": "npm -w packages/db run generate",
     "db:migrate": "npm -w packages/db run migrate:dev",
     "db:seed": "npm -w packages/db run seed",
